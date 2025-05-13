@@ -36,7 +36,7 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
         .then((userCredential) => {
             updateProfile(userCredential.user, { displayName: name });
             alert('Account created successfully!');
-            window.location.href = 'login.html';
+            window.location.href = 'user.html'; // Redirect to user.html for profile setup
         })
         .catch((error) => {
             alert('Signup failed: ' + error.message);
