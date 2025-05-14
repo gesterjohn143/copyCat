@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CopyCat - Shop Signup</title>
+    <link rel="stylesheet" href="css/signup.css">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">CopyCat</a>
+    </header>
+    
+    <div class="container">
+        <div class="signup-form">
+            <h1>Register Your Shop</h1>
+            <p>Join CopyCat to start receiving print jobs</p>
+            
+            <form id="shopSignupForm">
+                <div class="form-group">
+                    <label for="shopName">Shop Name</label>
+                    <input type="text" id="shopName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="shopAddress">Shop Address</label>
+                    <input type="text" id="shopAddress" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="shopPhone">Phone Number</label>
+                    <input type="tel" id="shopPhone" required>
+                </div>
+                
+                <button type="submit" class="btn">Register Shop</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7zC2xkGU7VZu7iLnSBhv4n8EZnHrzJFw",
+            authDomain: "copycat-d3561.firebaseapp.com",
+            projectId: "copycat-d3561",
+            storageBucket: "copycat-d3561.firebasestorage.app",
+            messagingSenderId: "201940334771",
+            appId: "1:201940334771:web:5d68712667c8a5526a58c6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        document.getElementById('shopSignupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const shopName = document.getElementById('shopName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const shopAddress = document.getElementById('shopAddress').value;
+            const shopPhone = document.getElementById('shopPhone').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const userId = userCredential.user.uid;
+                    set(ref(database, 'shops/' + userId), {
+                        shopName,
+                        email,
+                        shopAddress,
+                        shopPhone
+                    });
+                    alert('Shop registered successfully!');
+                    window.location.href = 'shop-login.html';
+                })
+                .catch((error) => {
+                    alert('Error: ' + error.message);
+                });
+        });
+    </script>
+</body>
+</html>

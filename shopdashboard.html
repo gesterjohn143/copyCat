@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CopyCat - Shop Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .print-jobs-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .print-jobs-table th, .print-jobs-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .print-jobs-table th {
+            background-color: #f5f5f5;
+            color: #2c3e50;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-download {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-download:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-complete {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .btn-complete:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">CopyCat</a>
+        <div class="auth-buttons">
+            <button class="btn btn-secondary" onclick="window.location.href='shoplogin.html'">Log Out</button>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Shop Dashboard</h1>
+            <p>Manage print jobs submitted by users</p>
+        </div>
+
+        <table class="print-jobs-table">
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Copies</th>
+                    <th>Print Type</th>
+                    <th>User Info</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="printJobsTableBody">
+                <!-- Print jobs will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7zC2xkGU7VZu7iLnSBhv4n8EZnHrzJFw",
+            authDomain: "copycat-d3561.firebaseapp.com",
+            projectId: "copycat-d3561",
+            storageBucket: "copycat-d3561.firebasestorage.app",
+            messagingSenderId: "201940334771",
+            appId: "1:201940334771:web:5d68712667c8a5526a58c6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        const printJobsTableBody = document.getElementById('printJobsTableBody');
+
+        // Listen for authentication state changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const shopId = user.uid; // Shop's unique ID
+                loadPrintJobs(shopId);
+            } else {
+                window.location.href = 'shoplogin.html'; // Redirect to login if not authenticated
+            }
+        });
+
+        // Load print jobs for the shop
+        function loadPrintJobs(shopId) {
+            const printJobsRef = ref(database, 'printJobs');
+            onValue(printJobsRef, (snapshot) => {
+                const printJobs = snapshot.val();
+                printJobsTableBody.innerHTML = ''; // Clear the table
+
+                for (const jobId in printJobs) {
+                    const job = printJobs[jobId];
+                    if (job.shopId === shopId) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${job.fileName}</td>
+                            <td>${job.copies}</td>
+                            <td>${job.printType}</td>
+                            <td>
+                                <p><strong>Name:</strong> ${job.userName || 'N/A'}</p>
+                                <p><strong>Email:</strong> ${job.userEmail || 'N/A'}</p>
+                            </td>
+                            <td>
+                                <a href="${job.fileURL}" target="_blank" class="btn btn-download">Download</a>
+                                <button class="btn btn-complete" onclick="markAsComplete('${jobId}')">Mark as Complete</button>
+                            </td>
+                        `;
+                        printJobsTableBody.appendChild(row);
+                    }
+                }
+            });
+        }
+
+        // Mark a print job as complete
+        function markAsComplete(jobId) {
+            const jobRef = ref(database, `printJobs/${jobId}`);
+            update(jobRef, { status: 'Completed' })
+                .then(() => {
+                    alert('Print job marked as completed!');
+                })
+                .catch((error) => {
+                    console.error('Error marking job as complete:', error);
+                    alert('Failed to mark job as complete. Please try again.');
+                });
+        }
+
+        // Log out the shop owner
+        function logout() {
+            signOut(auth)
+                .then(() => {
+                    window.location.href = 'shoplogin.html';
+                })
+                .catch((error) => {
+                    console.error('Error logging out:', error);
+                });
+        }
+    </script>
+</body>
+</html>
