@@ -132,7 +132,7 @@
                     <p><strong>ZIP Code:</strong></p>
                     <p id="zipDisplay"></p>
                 </div>
-                <a href="user.html" class="edit-btn">Edit Profile</a>
+                <a id="editProfileBtn" class="edit-btn">Edit Profile</a>
             </div>
         </div>
     </div>
@@ -156,40 +156,44 @@
         const database = getDatabase(app);
 
         // Listen for authentication state changes
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                const userId = user.uid;
-                const userRef = ref(database, 'users/' + userId);
+       onAuthStateChanged(auth, (user) => {
+    if (user) {
+        const userId = user.uid;
+        const userRef = ref(database, 'users/' + userId);
 
-                // Fetch user data from Firebase Realtime Database
-                get(userRef)
-                    .then((snapshot) => {
-                        if (snapshot.exists()) {
-                            const userData = snapshot.val();
+        // Fetch user data from Firebase Realtime Database
+        get(userRef)
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
 
-                            // Display the user data in the profile details
-                            document.getElementById('firstNameProfileCard').textContent = userData.firstName; // Profile Card
-                            document.getElementById('firstNameMainContent').textContent = userData.firstName; // Main Content
-                            document.getElementById('lastNameDisplay').textContent = userData.lastName;
-                            document.getElementById('emailDisplay').textContent = userData.email;
-                            document.getElementById('phoneDisplay').textContent = userData.phone;
-                            document.getElementById('birthdateDisplay').textContent = userData.birthdate;
-                            document.getElementById('addressDisplay').textContent = userData.address;
-                            document.getElementById('cityDisplay').textContent = userData.city;
-                            document.getElementById('stateDisplay').textContent = userData.state;
-                            document.getElementById('zipDisplay').textContent = userData.zip;
-                        } else {
-                            console.log("No user data found!");
-                        }
-                    })
-                    .catch((error) => {
-                        console.error("Error fetching data: ", error);
-                    });
-            } else {
-                // If no user is logged in, redirect to the login page
-                window.location.href = 'login.html';
-            }
-        });
+                    // Display the user data in the profile details
+                    document.getElementById('firstNameProfileCard').textContent = userData.firstName; // Profile Card
+                    document.getElementById('firstNameMainContent').textContent = userData.firstName; // Main Content
+                    document.getElementById('lastNameDisplay').textContent = userData.lastName;
+                    document.getElementById('emailDisplay').textContent = userData.email;
+                    document.getElementById('phoneDisplay').textContent = userData.phone;
+                    document.getElementById('birthdateDisplay').textContent = userData.birthdate;
+                    document.getElementById('addressDisplay').textContent = userData.address;
+                    document.getElementById('cityDisplay').textContent = userData.city;
+                    document.getElementById('stateDisplay').textContent = userData.state;
+                    document.getElementById('zipDisplay').textContent = userData.zip;
+
+                    // Update the "Edit Profile" button URL with user data
+                    const editProfileBtn = document.getElementById('editProfileBtn');
+                    editProfileBtn.href = `user.html?firstName=${encodeURIComponent(userData.firstName)}&lastName=${encodeURIComponent(userData.lastName)}&email=${encodeURIComponent(userData.email)}&phone=${encodeURIComponent(userData.phone)}&birthdate=${encodeURIComponent(userData.birthdate)}&address=${encodeURIComponent(userData.address)}&city=${encodeURIComponent(userData.city)}&state=${encodeURIComponent(userData.state)}&zip=${encodeURIComponent(userData.zip)}`;
+                } else {
+                    console.log("No user data found!");
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching data: ", error);
+            });
+    } else {
+        // If no user is logged in, redirect to the login page
+        window.location.href = 'login.html';
+    }
+});
     </script>
 </body>
 </html>

@@ -83,51 +83,77 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
-        import { getAuth } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyA7zC2xkGU7VZu7iLnSBhv4n8EZnHrzJFw",
-            authDomain: "copycat-d3561.firebaseapp.com",
-            projectId: "copycat-d3561",
-            storageBucket: "copycat-d3561.firebasestorage.app",
-            messagingSenderId: "201940334771",
-            appId: "1:201940334771:web:5d68712667c8a5526a58c6"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const database = getDatabase(app);
-        
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
 
-            // Get form values
-            const userId = auth.currentUser.uid; // Get the current user ID from Firebase Authentication
-            const formData = {
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                birthdate: document.getElementById('birthdate').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                state: document.getElementById('state').value,
-                zip: document.getElementById('zip').value
-            };
+const firebaseConfig = {
+    apiKey: "AIzaSyA7zC2xkGU7VZu7iLnSBhv4n8EZnHrzJFw",
+    authDomain: "copycat-d3561.firebaseapp.com",
+    projectId: "copycat-d3561",
+    storageBucket: "copycat-d3561.firebasestorage.app",
+    messagingSenderId: "201940334771",
+    appId: "1:201940334771:web:5d68712667c8a5526a58c6"
+};
 
-            // Save the data to Firebase Realtime Database
-            set(ref(database, 'users/' + userId), formData)
-                .then(() => {
-                    alert('Profile updated successfully!');
-                    // Redirect to the profile details page
-                    window.location.href = 'usersaved.html'; // Redirect to the new page
-                })
-                .catch((error) => {
-                    alert('Error updating profile: ' + error.message);
-                });
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
+
+// Function to get query parameters from the URL
+function getQueryParams() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+        firstName: params.get('firstName'),
+        lastName: params.get('lastName'),
+        email: params.get('email'),
+        phone: params.get('phone'),
+        birthdate: params.get('birthdate'),
+        address: params.get('address'),
+        city: params.get('city'),
+        state: params.get('state'),
+        zip: params.get('zip')
+    };
+}
+
+// Pre-fill the form fields with the data from the query parameters
+const queryParams = getQueryParams();
+document.getElementById('firstName').value = queryParams.firstName || '';
+document.getElementById('lastName').value = queryParams.lastName || '';
+document.getElementById('email').value = queryParams.email || '';
+document.getElementById('phone').value = queryParams.phone || '';
+document.getElementById('birthdate').value = queryParams.birthdate || '';
+document.getElementById('address').value = queryParams.address || '';
+document.getElementById('city').value = queryParams.city || '';
+document.getElementById('state').value = queryParams.state || '';
+document.getElementById('zip').value = queryParams.zip || '';
+
+// Save changes to Firebase when the form is submitted
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const userId = auth.currentUser.uid; // Get the current user ID from Firebase Authentication
+    const formData = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        birthdate: document.getElementById('birthdate').value,
+        address: document.getElementById('address').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        zip: document.getElementById('zip').value
+    };
+
+    set(ref(database, 'users/' + userId), formData)
+        .then(() => {
+            alert('Profile updated successfully!');
+            window.location.href = 'usersaved.html'; // Redirect back to the profile page
+        })
+        .catch((error) => {
+            alert('Error updating profile: ' + error.message);
         });
+});
     </script>
 </body>
 </html>
