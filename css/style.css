@@ -1,5 +1,4 @@
-
-        * {
+* {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -18,6 +17,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         
         .logo {
@@ -293,4 +296,56 @@
         .gm-style .gm-style-iw-d {
             overflow: auto !important;
         }
-    
+
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 1rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4em;
+        }
+
+        .user-nav a:hover {
+            color: #3498db;
+            text-decoration: underline;
+        }
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            background: #34495e;
+            border-radius: 20px;
+            padding: 0.3em 0.8em;
+            margin-left: 1.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .profile-btn:hover {
+            background: #3d566e;
+        }
+
+        .profile-btn img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 0.5em;
+            border: 2px solid #fff;
+        }
+
+        .profile-btn span {
+            font-weight: 500;
+            color: #fff;
+            font-size: 1rem;
+        }
