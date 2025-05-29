@@ -21,8 +21,9 @@
             <h2>Upload Your Document</h2>
             <div id="uploadArea" class="upload-area">
                 <p>Drag & drop your file here or click to browse</p>
-                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display: none;">
-                <img id="documentPreview" class="document-preview hidden">
+                <label for="fileInput" class="visually-hidden">Upload document</label>
+                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" title="Upload document" placeholder="Choose a file to upload">
+                <img id="documentPreview" class="document-preview hidden" alt="Document preview">
             </div>
             <button id="uploadBtn" class="btn">Upload Document</button>
         </div>
@@ -58,7 +59,8 @@
             
             <div class="option-group">
                 <h3>Copies</h3>
-                <input type="number" name="copies" min="1" value="1" style="padding: 0.5rem; width: 80px;">
+                <label for="copiesInput" class="visually-hidden">Number of copies</label>
+                <input type="number" id="copiesInput" name="copies" min="1" value="1" class="copies-input" title="Number of copies" placeholder="Enter number of copies">
             </div>
             
             <button id="findShopsBtn" class="btn">Find Nearest Print Shops</button>
@@ -69,7 +71,7 @@
             <p>We need your location to find the closest print shops to you.</p>
             <button id="allowLocationBtn" class="btn">Allow Location Access</button>
             <p>Or enter your address manually:</p>
-            <input type="text" id="manualAddress" placeholder="Enter your address" style="padding: 0.75rem; width: 100%; max-width: 500px;">
+            <input type="text" id="manualAddress" class="manual-address-input" placeholder="Enter your address">
             <button id="useManualAddressBtn" class="btn">Use This Address</button>
         </div>
         

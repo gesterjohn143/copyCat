@@ -248,6 +248,9 @@
             document.getElementById('map').classList.add('hidden');
         }
 
+        // Make initMap globally accessible for Google Maps callback
+        window.initMap = initMap;
+
         // Show nearby shops on map and in list
         function showNearbyShops() {
             locationSection.classList.add('hidden');
