@@ -109,7 +109,17 @@
             
             <div class="option-group">
                 <h3>Copies</h3>
-                <input type="number" name="copies" min="1" value="1" style="padding: 0.5rem; width: 80px;">
+                <label for="copiesInput" class="visually-hidden">Number of Copies</label>
+                <input
+                    type="number"
+                    id="copiesInput"
+                    name="copies"
+                    min="1"
+                    value="1"
+                    class="copies-input"
+                    title="Number of copies"
+                    placeholder="Enter number of copies"
+                >
             </div>
             
             <button id="findShopsBtn" class="btn">Find Nearest Print Shops</button>
