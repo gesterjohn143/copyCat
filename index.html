@@ -43,8 +43,9 @@
             <h2>Upload Your Document</h2>
             <div id="uploadArea" class="upload-area">
                 <p>Drag & drop your file here or click to browse</p>
-                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display: none;">
-                <img id="documentPreview" class="document-preview hidden">
+                <label for="fileInput" class="visually-hidden">Upload Document</label>
+                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" title="Upload Document" placeholder="Choose a file to upload">
+                <img id="documentPreview" class="document-preview hidden" alt="Document preview">
             </div>
             <button id="uploadBtn" class="btn">Upload Document</button>
         </div>
@@ -130,7 +131,7 @@
             <p>We need your location to find the closest print shops to you.</p>
             <button id="allowLocationBtn" class="btn">Allow Location Access</button>
             <p>Or enter your address manually:</p>
-            <input type="text" id="manualAddress" placeholder="Enter your address" style="padding: 0.75rem; width: 100%; max-width: 500px;">
+            <input type="text" id="manualAddress" placeholder="Enter your address">
             <button id="useManualAddressBtn" class="btn">Use This Address</button>
         </div>
         
