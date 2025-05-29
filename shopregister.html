@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CopyCat - Shop Profile</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .dashboard-container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .dashboard-header {
+      margin-bottom: 1.5rem;
+    }
+    .dashboard-header h1 {
+      font-size: 1.5rem;
+      color: #2c3e50;
+    }
+    .shop-register-form {
+      background: #f8f8f8;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+      max-width: 100%;
+    }
+    .shop-register-form h2 {
+      margin-top: 0;
+      color: #2980b9;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: 500;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      margin-right: 0.5rem;
+    }
+    .btn-primary {
+      background-color: #2980b9;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #1c5d8c;
+    }
+    .btn-secondary {
+      background-color: #888;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background-color: #555;
+    }
+    @media (max-width: 768px) {
+      .dashboard-container {
+        padding: 0.5rem;
+      }
+      .shop-register-form {
+        padding: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">CopyCat</a>
+    <div class="auth-buttons">
+      <button class="btn btn-secondary" onclick="window.location.href='shopmaindashboard.html'">Go to Print Jobs</button>
+      <button class="btn btn-secondary" onclick="logout()">Log Out</button>
+    </div>
+  </header>
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <h1>Shop Profile</h1>
+      <p>Register or update your shop information</p>
+    </div>
+    <form id="shopRegisterForm" class="shop-register-form">
+      <h2>Register / Update Your Shop</h2>
+      <div class="form-group">
+        <label for="shopName">Shop Name</label>
+        <input type="text" id="shopName" required>
+      </div>
+      <div class="form-group">
+        <label for="shopAddress">Address</label>
+        <input type="text" id="shopAddress" required>
+      </div>
+      <div class="form-group">
+        <label for="shopPhone">Phone Number</label>
+        <input type="tel" id="shopPhone" required>
+      </div>
+      <div class="form-group">
+        <label for="shopLat">Latitude</label>
+        <input type="number" id="shopLat" step="any" required>
+      </div>
+      <div class="form-group">
+        <label for="shopLng">Longitude</label>
+        <input type="number" id="shopLng" step="any" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Save Shop Info</button>
+    </form>
+  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA7zC2xkGU7VZu7iLnSBhv4n8EZnHrzJFw",
+      authDomain: "copycat-d3561.firebaseapp.com",
+      projectId: "copycat-d3561",
+      storageBucket: "copycat-d3561.appspot.com",
+      messagingSenderId: "201940334771",
+      appId: "1:201940334771:web:5d68712667c8a5526a58c6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    const shopRegisterForm = document.getElementById("shopRegisterForm");
+    let shopId = null;
+
+    // Listen for authentication state changes
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        shopId = user.uid;
+        loadShopInfo(shopId);
+      } else {
+        window.location.href = "shoplogin.html";
+      }
+    });
+
+    // Load shop info and pre-fill the form if exists
+    function loadShopInfo(shopId) {
+      const shopRef = ref(database, "shops/" + shopId);
+      get(shopRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          const shop = snapshot.val();
+          document.getElementById('shopName').value = shop.name || "";
+          document.getElementById('shopAddress').value = shop.address || "";
+          document.getElementById('shopPhone').value = shop.phone || "";
+          document.getElementById('shopLat').value = shop.lat || "";
+          document.getElementById('shopLng').value = shop.lng || "";
+        }
+      });
+    }
+
+    // Handle shop registration/update
+    shopRegisterForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const shopName = document.getElementById('shopName').value.trim();
+      const shopAddress = document.getElementById('shopAddress').value.trim();
+      const shopPhone = document.getElementById('shopPhone').value.trim();
+      const shopLat = parseFloat(document.getElementById('shopLat').value);
+      const shopLng = parseFloat(document.getElementById('shopLng').value);
+
+      if (!shopId) {
+        alert("You must be logged in as a shop owner.");
+        return;
+      }
+
+      // Inside your shopRegisterForm submit event
+await set(ref(database, 'shops/' + shopId), {
+  name: shopName,
+  address: shopAddress,
+  phone: shopPhone,
+  lat: shopLat,
+  lng: shopLng
+});
+
+      alert("Shop info saved successfully!");
+    });
+
+    // Log out the shop owner
+    window.logout = function() {
+      signOut(auth)
+        .then(() => {
+          window.location.href = "shoplogin.html";
+        })
+        .catch((error) => {
+          alert("Error logging out.");
+        });
+    };
+  </script>
+</body>
+</html>

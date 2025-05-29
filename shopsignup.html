@@ -52,55 +52,57 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+   <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA7zC2xkGU7VZu7iLnSBhv4n8EZnHrzJFw",
-            authDomain: "copycat-d3561.firebaseapp.com",
-            projectId: "copycat-d3561",
-            storageBucket: "copycat-d3561.firebasestorage.app",
-            messagingSenderId: "201940334771",
-            appId: "1:201940334771:web:5d68712667c8a5526a58c6"
-        };
+const firebaseConfig = {
+    apiKey: "AIzaSyA7zC2xkGU7VZu7iLnSBhv4n8EZnHrzJFw",
+    authDomain: "copycat-d3561.firebaseapp.com",
+    projectId: "copycat-d3561",
+    storageBucket: "copycat-d3561.appspot.com",
+    messagingSenderId: "201940334771",
+    appId: "1:201940334771:web:5d68712667c8a5526a58c6"
+};
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const database = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
 
-        document.getElementById('shopSignupForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+document.getElementById('shopSignupForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-            const shopName = document.getElementById('shopName').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const shopAddress = document.getElementById('shopAddress').value;
-            const shopPhone = document.getElementById('shopPhone').value;
+    const shopName = document.getElementById('shopName').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const shopAddress = document.getElementById('shopAddress').value;
+    const shopPhone = document.getElementById('shopPhone').value;
 
-            if (password !== confirmPassword) {
-                alert('Passwords do not match!');
-                return;
-            }
+    if (password !== confirmPassword) {
+        alert('Passwords do not match!');
+        return;
+    }
 
-            createUserWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    const userId = userCredential.user.uid;
-                    set(ref(database, 'shops/' + userId), {
-                        shopName,
-                        email,
-                        shopAddress,
-                        shopPhone
-                    });
-                    alert('Shop registered successfully!');
-                    window.location.href = 'shop-login.html';
-                })
-                .catch((error) => {
-                    alert('Error: ' + error.message);
-                });
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const userId = userCredential.user.uid;
+            set(ref(database, 'shops/' + userId), {
+                name: shopName,
+                address: shopAddress,
+                phone: shopPhone,
+                email: email,
+                lat: "",
+                lng: ""
+            });
+            alert('Shop registered successfully!');
+            window.location.href = 'shoplogin.html';
+        })
+        .catch((error) => {
+            alert('Error: ' + error.message);
         });
-    </script>
+});
+</script>
 </body>
 </html>

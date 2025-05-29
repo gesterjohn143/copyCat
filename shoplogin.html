@@ -32,37 +32,53 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA7zC2xkGU7VZu7iLnSBhv4n8EZnHrzJFw",
-            authDomain: "copycat-d3561.firebaseapp.com",
-            projectId: "copycat-d3561",
-            storageBucket: "copycat-d3561.firebasestorage.app",
-            messagingSenderId: "201940334771",
-            appId: "1:201940334771:web:5d68712667c8a5526a58c6"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyA7zC2xkGU7VZu7iLnSBhv4n8EZnHrzJFw",
+        authDomain: "copycat-d3561.firebaseapp.com",
+        projectId: "copycat-d3561",
+        storageBucket: "copycat-d3561.appspot.com",
+        messagingSenderId: "201940334771",
+        appId: "1:201940334771:web:5d68712667c8a5526a58c6"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
 
-        document.getElementById('shopLoginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+    document.getElementById('shopLoginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-            signInWithEmailAndPassword(auth, email, password)
-                .then(() => {
-                    alert('Login successful!');
-                    window.location.href = 'shopdashboard.html';
-                })
-                .catch((error) => {
-                    alert('Error: ' + error.message);
-                });
-        });
-    </script>
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const shopId = userCredential.user.uid;
+                const shopRef = ref(database, 'shops/' + shopId);
+
+                get(shopRef)
+                    .then((snapshot) => {
+                        if (snapshot.exists()) {
+                            // Shop is registered, go to dashboard
+                            window.location.href = 'shopmaindashboard.html';
+                        } else {
+                            // Shop not registered, go to register page
+                            window.location.href = 'shopregister.html';
+                        }
+                    })
+                    .catch((error) => {
+                        alert('Error: ' + error.message);
+                    });
+            })
+            .catch((error) => {
+                alert('Error: ' + error.message);
+            });
+    });
+</script>
 </body>
 </html>

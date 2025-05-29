@@ -3,371 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CopyCat - Document Printing Service</title>
+    <title>CopyCat - Print</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .shop-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            margin-bottom: 1rem;
+            padding: 1rem;
+            transition: border 0.2s;
+        }
+        .shop-card.selected {
+            border: 2px solid #3498db;
+        }
+        .shop-card h4 {
+            margin: 0 0 0.5rem 0;
+            color: #2c3e50;
+        }
+        .shop-card p {
+            color: #7f8c8d;
+            margin-bottom: 0.5rem;
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
 </head>
 <body>
     <header>
         <a href="index.html" class="logo">CopyCat</a>
-        
-        </div>
     </header>
-    
     <div class="container">
-        <h1>Print Your Documents Easily</h1>
-        <p>Upload your document and we'll find the nearest print shop for you</p>
-        
-        <div class="upload-section">
-            <h2>Upload Your Document</h2>
-            <div id="uploadArea" class="upload-area">
-                <p>Drag & drop your file here or click to browse</p>
-                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display: none;">
-                <img id="documentPreview" class="document-preview hidden">
+        <h1>Print Your Documents</h1>
+        <form id="printForm">
+            <div>
+                <label>Upload PDF or Image:</label>
+                <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" required>
             </div>
-            <button id="uploadBtn" class="btn">Upload Document</button>
-        </div>
-        
-        <div id="printingOptions" class="printing-options hidden">
-            <h2>Printing Options</h2>
-            
-            <div class="option-group">
-                <h3>Paper Size</h3>
-                <div class="radio-group">
-                    <label class="radio-option"><input type="radio" name="paperSize" value="A4" checked> A4</label>
-                    <label class="radio-option"><input type="radio" name="paperSize" value="Letter"> Letter</label>
-                    <label class="radio-option"><input type="radio" name="paperSize" value="Legal"> Legal</label>
-                </div>
+            <div>
+                <label>Paper Size:</label>
+                <select id="paperSize">
+                    <option value="A4">A4</option>
+                    <option value="Letter">Letter</option>
+                    <option value="Legal">Legal</option>
+                </select>
             </div>
-            
-            <div class="option-group">
-                <h3>Print Type</h3>
-                <div class="radio-group">
-                    <label class="radio-option"><input type="radio" name="printType" value="black-white" checked> Black & White</label>
-                    <label class="radio-option"><input type="radio" name="printType" value="colored"> Colored</label>
-                </div>
+            <div>
+                <label>Print Type:</label>
+                <select id="printType">
+                    <option value="black-white">Black & White</option>
+                    <option value="colored">Colored</option>
+                </select>
             </div>
-            
-            <div class="option-group">
-                <h3>Options</h3>
-                <div class="checkbox-group">
-                    <label class="checkbox-option"><input type="checkbox" name="doubleSided"> Double-sided</label>
-                    <label class="checkbox-option"><input type="checkbox" name="stapled"> Stapled</label>
-                    <label class="checkbox-option"><input type="checkbox" name="holePunched"> Hole-punched</label>
-                </div>
+            <div>
+                <label><input type="checkbox" id="doubleSided"> Double-sided</label>
+                <label><input type="checkbox" id="stapled"> Stapled</label>
+                <label><input type="checkbox" id="holePunched"> Hole-punched</label>
             </div>
-            
-            <div class="option-group">
-                <h3>Copies</h3>
-                <input type="number" name="copies" min="1" value="1" style="padding: 0.5rem; width: 80px;">
+            <div>
+                <label>Copies:</label>
+                <input type="number" id="copies" min="1" value="1">
             </div>
-            
-            <button id="findShopsBtn" class="btn">Find Nearest Print Shops</button>
-        </div>
-        
-        <div id="locationSection" class="hidden">
-            <h2>Allow location access to find nearest shops</h2>
-            <p>We need your location to find the closest print shops to you.</p>
-            <button id="allowLocationBtn" class="btn">Allow Location Access</button>
-            <p>Or enter your address manually:</p>
-            <input type="text" id="manualAddress" placeholder="Enter your address" style="padding: 0.75rem; width: 100%; max-width: 500px;">
-            <button id="useManualAddressBtn" class="btn">Use This Address</button>
-        </div>
-        
-        <div id="map"></div>
-        
-        <div id="shopsSection" class="hidden">
-            <h2>Nearby Print Shops</h2>
-            <p>Select a shop to send your print job to:</p>
-            
-            <div id="printShops" class="print-shops">
-                <!-- Shop cards will be inserted here by JavaScript -->
+            <div>
+                <h3>Select a Print Shop</h3>
+                <div id="shopsList"></div>
             </div>
-            <!-- Login Modal -->
-<div id="loginModal" class="modal hidden">
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2>Log In</h2>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="loginEmail">Email</label>
-                <input type="email" id="loginEmail" required>
-            </div>
-            <div class="form-group">
-                <label for="loginPassword">Password</label>
-                <input type="password" id="loginPassword" required>
-            </div>
-            <div class="form-options">
-                <label>
-                    <input type="checkbox"> Remember me
-                </label>
-                <a href="#" class="forgot-password">Forgot password?</a>
-            </div>
-            <button type="submit" class="btn btn-primary">Log In</button>
+            <button type="submit" class="btn">Send to Shop</button>
         </form>
     </div>
-</div>
-
-<!-- Signup Modal -->
-<div id="signupModal" class="modal hidden">
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2>Create Account</h2>
-        <form id="signupForm">
-            <div class="form-group">
-                <label for="signupName">Full Name</label>
-                <input type="text" id="signupName" required>
-            </div>
-            <div class="form-group">
-                <label for="signupEmail">Email</label>
-                <input type="email" id="signupEmail" required>
-            </div>
-            <div class="form-group">
-                <label for="signupPassword">Password</label>
-                <input type="password" id="signupPassword" required>
-            </div>
-            <div class="form-group">
-                <label for="signupConfirm">Confirm Password</label>
-                <input type="password" id="signupConfirm" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Sign Up</button>
-        </form>
-    </div>
-</div>
-        </div>
-    </div>
-    
     <footer>
-        <p>&copy; 2023 PrintEase - Document Printing Service</p>
+        <p>&copy; 2025 CopyCat</p>
     </footer>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+        import { getDatabase, ref, push, set, get } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js";
 
-    <script>
-        // Sample print shop data
-        const printShops = [
-            {
-                id: 1,
-                name: "Quick Print Center",
-                address: "123 Main St, Cityville",
-                phone: "(555) 123-4567",
-                hours: "Mon-Fri: 8am-6pm, Sat: 9am-3pm",
-                distance: "0.5 miles",
-                coordinates: { lat: 37.7749, lng: -122.4194 }
-            },
-            {
-                id: 2,
-                name: "Office Print Solutions",
-                address: "456 Business Ave, Cityville",
-                phone: "(555) 987-6543",
-                hours: "Mon-Fri: 7am-7pm, Sat-Sun: 10am-2pm",
-                distance: "1.2 miles",
-                coordinates: { lat: 37.7812, lng: -122.4113 }
-            },
-            {
-                id: 3,
-                name: "Copy Express",
-                address: "789 Commerce Rd, Cityville",
-                phone: "(555) 456-7890",
-                hours: "Mon-Sat: 9am-5pm",
-                distance: "2.1 miles",
-                coordinates: { lat: 37.7937, lng: -122.3963 }
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7zC2xkGU7VZu7iLnSBhv4n8EZnHrzJFw",
+            authDomain: "copycat-d3561.firebaseapp.com",
+            projectId: "copycat-d3561",
+            storageBucket: "copycat-d3561.firebasestorage.app",
+            messagingSenderId: "201940334771",
+            appId: "1:201940334771:web:5d68712667c8a5526a58c6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
+
+        let selectedShop = null;
+        let user = null;
+
+        // Load shops from Firebase
+        async function loadShops() {
+            const shopsList = document.getElementById('shopsList');
+            shopsList.innerHTML = "<p>Loading shops...</p>";
+            const snapshot = await get(ref(db, 'shops'));
+            shopsList.innerHTML = "";
+            if (snapshot.exists()) {
+                const shops = snapshot.val();
+                Object.entries(shops).forEach(([shopId, shop]) => {
+                    const card = document.createElement('div');
+                    card.className = 'shop-card';
+                    card.innerHTML = `
+                        <h4>${shop.name}</h4>
+                        <p>${shop.address}</p>
+                        <p>Location: ${shop.lat}, ${shop.lng}</p>
+                        <button type="button" class="btn">Select</button>
+                    `;
+                    card.querySelector('button').onclick = () => {
+                        document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        selectedShop = { ...shop, shopId };
+                    };
+                    shopsList.appendChild(card);
+                });
+            } else {
+                shopsList.innerHTML = "<p>No shops available.</p>";
             }
-        ];
+        }
 
-        // DOM elements
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const documentPreview = document.getElementById('documentPreview');
-        const printingOptions = document.getElementById('printingOptions');
-        const findShopsBtn = document.getElementById('findShopsBtn');
-        const locationSection = document.getElementById('locationSection');
-        const allowLocationBtn = document.getElementById('allowLocationBtn');
-        const manualAddress = document.getElementById('manualAddress');
-        const useManualAddressBtn = document.getElementById('useManualAddressBtn');
-        const shopsSection = document.getElementById('shopsSection');
-        const printShopsContainer = document.getElementById('printShops');
-        const loginBtn = document.getElementById('loginBtn');
-        const signupBtn = document.getElementById('signupBtn');
-        const loginModal = document.getElementById('loginModal');
-        const signupModal = document.getElementById('signupModal');
-        const closeModals = document.querySelectorAll('.close-modal');
+        // Wait for user to be logged in
+        onAuthStateChanged(auth, (u) => {
+            if (!u) {
+                alert("Please log in first.");
+                window.location.href = "login.html";
+            } else {
+                user = u;
+                loadShops();
+            }
+        });
 
-
-        // Current state
-        let currentFile = null;
-        let userLocation = null;
-
-        // Event listeners
-        uploadArea.addEventListener('click', () => fileInput.click());
-        uploadArea.addEventListener('dragover', (e) => {
+        // Handle form submission
+        document.getElementById('printForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            uploadArea.style.backgroundColor = '#f0f8ff';
-        });
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.backgroundColor = '';
-        });
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.style.backgroundColor = '';
-            if (e.dataTransfer.files.length) {
-                handleFileSelection(e.dataTransfer.files[0]);
-            }
-        });
-
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files.length) {
-                handleFileSelection(fileInput.files[0]);
-            }
-        });
-
-        uploadBtn.addEventListener('click', () => {
-            if (currentFile) {
-                printingOptions.classList.remove('hidden');
-                uploadBtn.textContent = 'Change Document';
-            } else {
-                fileInput.click();
-            }
-        });
-
-        findShopsBtn.addEventListener('click', () => {
-            locationSection.classList.remove('hidden');
-        });
-        // Show login modal
-loginBtn.addEventListener('click', () => {
-    loginModal.classList.remove('hidden');
-});
-
-// Show signup modal
-signupBtn.addEventListener('click', () => {
-    signupModal.classList.remove('hidden');
-});
-
-// Close modals
-closeModals.forEach(btn => {
-    btn.addEventListener('click', () => {
-        loginModal.classList.add('hidden');
-        signupModal.classList.add('hidden');
-    });
-});
-// Form submissions
-document.getElementById('loginForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    // Add your login logic here
-    alert('Login functionality would be implemented here');
-    loginModal.classList.add('hidden');
-});
-
-document.getElementById('signupForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    // Add your signup logic here
-    alert('Signup functionality would be implemented here');
-    signupModal.classList.add('hidden');
-});
-        
-
-        allowLocationBtn.addEventListener('click', () => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-                        showNearbyShops();
-                    },
-                    (error) => {
-                        alert('Could not get your location. Please try manually entering your address.');
-                        console.error('Geolocation error:', error);
-                    }
-                );
-            } else {
-                alert('Geolocation is not supported by your browser. Please enter your address manually.');
-            }
-        });
-
-        useManualAddressBtn.addEventListener('click', () => {
-            if (manualAddress.value.trim()) {
-                // In a real app, you would geocode this address to get coordinates
-                // For demo, we'll use a default location
-                userLocation = { lat: 37.7749, lng: -122.4194 };
-                showNearbyShops();
-            } else {
-                alert('Please enter an address');
-            }
-        });
-
-        // Functions
-        function handleFileSelection(file) {
-            const validTypes = ['application/pdf', 'application/msword', 
-                               'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                               'image/jpeg', 'image/png'];
-            
-            if (!validTypes.includes(file.type) && !file.name.match(/\.(pdf|doc|docx|jpg|jpeg|png)$/i)) {
-                alert('Please select a valid file type (PDF, DOC, DOCX, JPG, PNG)');
+            if (!selectedShop) {
+                alert("Please select a shop.");
                 return;
             }
-
-            currentFile = file;
-            
-            // Show preview if it's an image
-            if (file.type.match('image.*')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    documentPreview.src = e.target.result;
-                    documentPreview.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            } else {
-                documentPreview.classList.add('hidden');
+            const file = document.getElementById('fileInput').files[0];
+            if (!file) {
+                alert("Please select a file.");
+                return;
             }
-            
-            uploadArea.innerHTML = `<p>Selected: ${file.name}</p>`;
-            uploadBtn.textContent = 'Continue to Printing Options';
-        }
+            if (!user) {
+                alert("You are not logged in!");
+                return;
+            }
+            try {
+                // Upload file to Firebase Storage
+                const filePath = `printJobs/${user.uid}/${Date.now()}_${file.name}`;
+                const fileRef = sRef(storage, filePath);
+                await uploadBytes(fileRef, file);
+                const fileURL = await getDownloadURL(fileRef);
 
-        function showNearbyShops() {
-            locationSection.classList.add('hidden');
-            shopsSection.classList.remove('hidden');
-            
-            // In a real app, you would calculate distances based on userLocation
-            // For demo, we'll use the sample data
-            
-            // Clear previous shops
-            printShopsContainer.innerHTML = '';
-            
-            // Add shop cards
-            printShops.forEach(shop => {
-                const shopCard = document.createElement('div');
-                shopCard.className = 'shop-card';
-                shopCard.innerHTML = `
-                    <h3>${shop.name}</h3>
-                    <p>${shop.address}</p>
-                    <p>${shop.phone}</p>
-                    <p>${shop.hours}</p>
-                    <p class="distance">${shop.distance} away</p>
-                    <button class="btn" onclick="selectShop(${shop.id})">Select This Shop</button>
-                `;
-                printShopsContainer.appendChild(shopCard);
-            });
-            
-            // In a real app, you would initialize a map here with the user location and shop locations
-            // For demo, we'll just show a placeholder
-            const mapDiv = document.getElementById('map');
-            mapDiv.innerHTML = '<div style="background-color: #ddd; height: 100%; display: flex; justify-content: center; align-items: center;">Map would show here with your location and nearby print shops</div>';
-        }
-
-        // Global function for shop selection
-        window.selectShop = function(shopId) {
-            const selectedShop = printShops.find(shop => shop.id === shopId);
-            alert(`Your document has been sent to ${selectedShop.name}!\n\nYou will receive a confirmation when your print job is ready for pickup.`);
-            
-            // In a real app, you would send the file and printing options to your backend
-            // which would then communicate with the print shop
-            console.log('Sending to print shop:', {
-                shop: selectedShop,
-                file: currentFile.name,
-                userLocation: userLocation
-            });
-        };
+                // Save print job to Realtime Database
+                const jobRef = push(ref(db, "printJobs"));
+                await set(jobRef, {
+                    fileURL,
+                    fileName: file.name,
+                    userId: user.uid,
+                    userEmail: user.email,
+                    shopId: selectedShop.shopId,
+                    shopName: selectedShop.name,
+                    options: {
+                        paperSize: document.getElementById('paperSize').value,
+                        printType: document.getElementById('printType').value,
+                        doubleSided: document.getElementById('doubleSided').checked,
+                        stapled: document.getElementById('stapled').checked,
+                        holePunched: document.getElementById('holePunched').checked,
+                        copies: parseInt(document.getElementById('copies').value)
+                    },
+                    status: "Pending",
+                    createdAt: Date.now()
+                });
+                alert("Your print job has been sent to " + selectedShop.name + "!");
+                window.location.href = "orders.html";
+            } catch (error) {
+                alert("Upload failed: " + error.message);
+                console.error(error);
+            }
+        });
     </script>
 </body>
 </html>
