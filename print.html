@@ -501,51 +501,41 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     </script>
     <script type="module">
-import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-const firebaseConfig = {
-    apiKey: "AIzaSyA7zC2xkGU7VZu7iLnSBhv4n8EZnHrzJFw",
-    authDomain: "copycat-d3561.firebaseapp.com",
-    projectId: "copycat-d3561",
-    storageBucket: "copycat-d3561.firebasestorage.app",
-    messagingSenderId: "201940334771",
-    appId: "1:201940334771:web:5d68712667c8a5526a58c6"
-};
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
 // Patch your loadShops to also render markers
 const origLoadShops = window.loadShops;
 window.loadShops = function() {
     const shopsList = document.getElementById('shopsList');
     shopsList.innerHTML = "<p>Loading shops...</p>";
-    get(ref(db, 'shops')).then(snapshot => {
-        shopsList.innerHTML = "";
-        let shopsArr = [];
-        if (snapshot.exists()) {
-            const shops = snapshot.val();
-            Object.entries(shops).forEach(([shopId, shop]) => {
-                shopsArr.push({ ...shop, shopId });
-                const card = document.createElement('div');
-                card.className = 'shop-card';
-                card.id = 'shop-card-' + shopId;
-                card.innerHTML = `
-                    <h4>${shop.name}</h4>
-                    <p>${shop.address}</p>
-                    <button type="button" class="btn">Select</button>
-                `;
-                card.querySelector('button').onclick = () => {
-                    document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                    window.selectedShop = { ...shop, shopId };
-                };
-                shopsList.appendChild(card);
-            });
-        } else {
-            shopsList.innerHTML = "<p>No shops available.</p>";
-        }
-        // Render markers on map
-        if (window.renderShopMarkersOnMap) window.renderShopMarkersOnMap(shopsArr);
+    // Use the existing db from the first module script
+    import("https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js").then(({ ref, get }) => {
+        get(ref(db, 'shops')).then(snapshot => {
+            shopsList.innerHTML = "";
+            let shopsArr = [];
+            if (snapshot.exists()) {
+                const shops = snapshot.val();
+                Object.entries(shops).forEach(([shopId, shop]) => {
+                    shopsArr.push({ ...shop, shopId });
+                    const card = document.createElement('div');
+                    card.className = 'shop-card';
+                    card.id = 'shop-card-' + shopId;
+                    card.innerHTML = `
+                        <h4>${shop.name}</h4>
+                        <p>${shop.address}</p>
+                        <button type="button" class="btn">Select</button>
+                    `;
+                    card.querySelector('button').onclick = () => {
+                        document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        window.selectedShop = { ...shop, shopId };
+                    };
+                    shopsList.appendChild(card);
+                });
+            } else {
+                shopsList.innerHTML = "<p>No shops available.</p>";
+            }
+            // Render markers on map
+            if (window.renderShopMarkersOnMap) window.renderShopMarkersOnMap(shopsArr);
+        });
     });
 };
 </script>

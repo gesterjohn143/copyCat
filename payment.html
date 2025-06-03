@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CopyCat - Payment Methods</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/user.css">
+    <style>
+        .payment-methods-wrapper {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(44,62,80,0.08);
+            padding: 2rem 2.5rem;
+            margin: 2rem auto;
+            max-width: 500px;
+        }
+        .payment-methods-wrapper h1 {
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+        }
+        .payment-method {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 8px;
+            background: #f8fafd;
+            margin-bottom: 1rem;
+            border: 1px solid #e3e9f2;
+            transition: box-shadow 0.2s;
+        }
+        .payment-method img {
+            width: 40px;
+            height: 40px;
+            margin-right: 1rem;
+        }
+        .payment-method .method-info {
+            flex: 1;
+        }
+        .payment-method .method-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .payment-method .method-desc {
+            color: #7f8c8d;
+            font-size: 0.95em;
+        }
+        .add-method-btn {
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0.7em 1.5em;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            transition: background 0.2s;
+        }
+        .add-method-btn:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="user-nav">
+            <a href="orders.html"><i class="fas fa-print"></i> My Orders</a>
+            <a href="usersaved.html"><i class="fas fa-user"></i> Profile</a>
+            <div class="profile-btn" onclick="window.location.href='usersaved.html'">
+                <img src="assets/userr.jpg" alt="User Profile">
+                <span>Profile</span>
+            </div>
+        </div>
+    </header>
+    <div class="payment-methods-wrapper">
+        <h1>Payment Methods</h1>
+        <div class="payment-method">
+            <img src="assets/gcash.png" alt="GCash">
+            <div class="method-info">
+                <div class="method-title">GCash</div>
+                <div class="method-desc">Pay easily using your GCash mobile wallet.</div>
+            </div>
+            <button class="add-method-btn" onclick="alert('GCash linking coming soon!')">Link</button>
+        </div>
+        <div class="payment-method">
+            <img src="assets/cash.jpg" alt="Cash">
+            <div class="method-info">
+                <div class="method-title">Cash on Pickup</div>
+                <div class="method-desc">Pay with cash when you pick up your documents.</div>
+            </div>
+        </div>
+        <div class="payment-method">
+            <img src="assets/bank.png" alt="Bank Transfer">
+            <div class="method-info">
+                <div class="method-title">Bank Transfer</div>
+                <div class="method-desc">Transfer funds directly from your bank account.</div>
+            </div>
+            <button class="add-method-btn" onclick="alert('Bank transfer instructions coming soon!')">Link</button>
+        </div>
+    </div>
+    <script src="https://kit.fontawesome.com/2c36e9b7b1.js" crossorigin="anonymous"></script>
+</body>
+</html>

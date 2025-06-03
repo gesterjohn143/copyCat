@@ -1,5 +1,4 @@
-
-        * {
+* {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -127,7 +126,7 @@
         .nav-menu a {
             display: block;
             padding: 0.75rem 1rem;
-            color: #2c3e50;
+            color: #502c2c;
             text-decoration: none;
             border-radius: 4px;
             transition: all 0.2s;
@@ -143,6 +142,18 @@
             width: 20px;
             text-align: center;
         }
+
+        .nav-menu a.logout-btn, 
+.nav-menu a.logout-btn:visited {
+    background-color: #ffeded;
+    color: #e74c3c !important;
+    border: 1px solid #e74c3c;
+}
+
+.nav-menu a.logout-btn:hover {
+    background-color: #e74c3c;
+    color: #fff !important;
+}
 
         .main-content {
             background: white;
@@ -253,4 +264,3 @@
                 grid-template-columns: 1fr;
             }
         }
-    

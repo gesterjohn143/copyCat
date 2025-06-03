@@ -53,6 +53,19 @@
         .profile-details-card .edit-btn:hover {
             background-color: #2980b9;
         }
+
+        /* Make logout button red */
+        .nav-menu a.logout-btn, 
+        .nav-menu a.logout-btn:visited {
+            background-color: #ffeded;
+            color: #e74c3c !important;
+            border: 1px solid #e74d3caa;
+        }
+
+        .nav-menu a.logout-btn:hover {
+            background-color: #e74c3c;
+            color: #fff !important;
+        }
     </style>
 </head>
 <body>
@@ -82,7 +95,11 @@
                 <li><a href="payment.html"><i class="fas fa-credit-card"></i> Payment Methods</a></li>
                 <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
                 <li><a href="help.html"><i class="fas fa-question-circle"></i> Help</a></li>
-                <li><a href="#" onclick="confirmLogout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <li>
+                    <a href="#" class="logout-btn" onclick="confirmLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
                 <script>
                     function confirmLogout() {
                         if (confirm("Are you sure you want to log out?")) {
