@@ -65,6 +65,10 @@
       color: #27ae60;
       font-weight: bold;
     }
+    .status-rejected {
+      color: #e74c3c;
+      font-weight: bold;
+    }
     @media (max-width: 768px) {
       .dashboard-container {
         padding: 0.5rem;
@@ -84,7 +88,7 @@
     <a href="index.html" class="logo">CopyCat</a>
     <div class="auth-buttons">
       <button class="btn btn-secondary" onclick="window.location.href='shopregister.html'">Shop Profile</button>
-      <button class="btn btn-secondary" onclick="logout()">Log Out</button>
+      <button class="btn btn-secondary" onclick="logout(); window.location.href='index.html';">Log Out</button>
     </div>
   </header>
   <div class="dashboard-container">
@@ -153,6 +157,8 @@
             let statusClass = "status-pending";
             if (job.status === "Ready for Pickup") statusClass = "status-ready";
             if (job.status === "Completed") statusClass = "status-completed";
+            if (job.status === "Rejected") statusClass = "status-rejected";
+            const isFinal = job.status === "Completed" || job.status === "Rejected";
             const row = document.createElement("tr");
             row.innerHTML = `
               <td>${job.fileName}</td>
@@ -172,10 +178,12 @@
               <td class="${statusClass}">${job.status || "Pending"}</td>
               <td>
                 <a href="${job.fileURL}" target="_blank" class="btn btn-download">Download</a>
-                ${job.status === "Pending"
-                  ? `<button class="btn btn-status" onclick="window.updateJobStatus('${jobId}', 'Ready for Pickup')">Ready for Pickup</button>`
-                  : job.status === "Ready for Pickup"
-                  ? `<button class="btn btn-status" onclick="window.updateJobStatus('${jobId}', 'Completed')">Mark as Completed</button>`
+                ${!isFinal && job.status === "Pending"
+                  ? `<button class="btn btn-status" onclick="window.updateJobStatus('${jobId}', 'Ready for Pickup')">Ready for Pickup</button>
+                     <button class="btn btn-secondary" style="background:#e74c3c;" onclick="window.updateJobStatus('${jobId}', 'Rejected')">Reject</button>`
+                  : !isFinal && job.status === "Ready for Pickup"
+                  ? `<button class="btn btn-status" onclick="window.updateJobStatus('${jobId}', 'Completed')">Mark as Completed</button>
+                     <button class="btn btn-secondary" style="background:#e74c3c;" onclick="window.updateJobStatus('${jobId}', 'Rejected')">Reject</button>`
                   : ""
                 }
               </td>
@@ -202,7 +210,7 @@
     window.logout = function() {
       signOut(auth)
         .then(() => {
-          window.location.href = "shoplogin.html";
+          window.location.href = "index.html";
         })
         .catch((error) => {
           alert("Error logging out.");

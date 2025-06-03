@@ -105,14 +105,6 @@
         <label for="shopPhone">Phone Number</label>
         <input type="tel" id="shopPhone" required>
       </div>
-      <div class="form-group">
-        <label for="shopLat">Latitude</label>
-        <input type="number" id="shopLat" step="any" required>
-      </div>
-      <div class="form-group">
-        <label for="shopLng">Longitude</label>
-        <input type="number" id="shopLng" step="any" required>
-      </div>
       <button type="submit" class="btn btn-primary">Save Shop Info</button>
     </form>
   </div>
@@ -156,10 +148,22 @@
           document.getElementById('shopName').value = shop.name || "";
           document.getElementById('shopAddress').value = shop.address || "";
           document.getElementById('shopPhone').value = shop.phone || "";
-          document.getElementById('shopLat').value = shop.lat || "";
-          document.getElementById('shopLng').value = shop.lng || "";
         }
       });
+    }
+
+    // Geocode address to lat/lng using Google Maps Geocoding API
+    async function geocodeAddress(address) {
+      const apiKey = "AIzaSyAHwI-laof9pFodmAMQ_QwUYJium-c7TiQ";
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.status === "OK") {
+        const location = data.results[0].geometry.location;
+        return { lat: location.lat, lng: location.lng };
+      } else {
+        throw new Error("Could not geocode address.");
+      }
     }
 
     // Handle shop registration/update
@@ -168,31 +172,32 @@
       const shopName = document.getElementById('shopName').value.trim();
       const shopAddress = document.getElementById('shopAddress').value.trim();
       const shopPhone = document.getElementById('shopPhone').value.trim();
-      const shopLat = parseFloat(document.getElementById('shopLat').value);
-      const shopLng = parseFloat(document.getElementById('shopLng').value);
 
       if (!shopId) {
         alert("You must be logged in as a shop owner.");
         return;
       }
 
-      // Inside your shopRegisterForm submit event
-await set(ref(database, 'shops/' + shopId), {
-  name: shopName,
-  address: shopAddress,
-  phone: shopPhone,
-  lat: shopLat,
-  lng: shopLng
-});
-
-      alert("Shop info saved successfully!");
+      try {
+        const { lat, lng } = await geocodeAddress(shopAddress);
+        await set(ref(database, 'shops/' + shopId), {
+          name: shopName,
+          address: shopAddress,
+          phone: shopPhone,
+          lat,
+          lng
+        });
+        alert("Shop info saved successfully!");
+      } catch (err) {
+        alert("Failed to save shop info: " + err.message);
+      }
     });
 
     // Log out the shop owner
     window.logout = function() {
       signOut(auth)
         .then(() => {
-          window.location.href = "shoplogin.html";
+          window.location.href = "index.html";
         })
         .catch((error) => {
           alert("Error logging out.");

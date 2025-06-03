@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CopyCat - My Orders</title>
+    <link rel="stylesheet" href="css/user.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .orders-table th, .orders-table td {
+            padding: 1rem;
+            text-align: left;
+        }
+        .orders-table th {
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+        .orders-table tr:not(:last-child) {
+            border-bottom: 1px solid #eee;
+        }
+        .status-pending {
+            color: #e67e22;
+            font-weight: bold;
+        }
+        .status-completed {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .orders-empty {
+            text-align: center;
+            color: #888;
+            margin-top: 2rem;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            flex: 1 0 auto;
+        }
+        footer {
+            flex-shrink: 0;
+            background: #2c3e50;
+            text-align: center;
+            padding: 1rem 0;
+            color: #fff;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">CopyCat</a>
+        <div class="user-nav">
+            <a href="print.html"><i class="fas fa-print"></i> Print</a>
+            <a href="orders.html"><i class="fas fa-print"></i> My Orders</a>
+            <a href="payment.html"><i class="fas fa-credit-card"></i> Payment</a>
+            <div class="profile-btn" style="cursor:pointer;" onclick="window.location.href='usersaved.html'">
+                <img src="assets/userr.jpg" alt="User Profile">
+                <span>Profile</span>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <h1>My Print Orders</h1>
+        <div id="ordersContainer"></div>
+    </div>
+    <footer>
+        <p>&copy; 2025 CopyCat</p>
+    </footer>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+        import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7zC2xkGU7VZu7iLnSBhv4n8EZnHrzJFw",
+            authDomain: "copycat-d3561.firebaseapp.com",
+            projectId: "copycat-d3561",
+            storageBucket: "copycat-d3561.appspot.com",
+            messagingSenderId: "201940334771",
+            appId: "1:201940334771:web:5d68712667c8a5526a58c6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        const ordersContainer = document.getElementById('ordersContainer');
+
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+        }
+
+        // Delete order function
+        async function deleteOrder(orderId) {
+            if (confirm("Are you sure you want to delete/cancel this order?")) {
+                try {
+                    await remove(ref(db, "printJobs/" + orderId));
+                    alert("Order deleted.");
+                    // Refresh orders
+                    loadOrders();
+                } catch (err) {
+                    alert("Failed to delete order: " + err.message);
+                }
+            }
+        }
+
+        function renderOrders(orders) {
+            if (!orders || Object.keys(orders).length === 0) {
+                ordersContainer.innerHTML = `<div class="orders-empty">No orders found.</div>`;
+                return;
+            }
+            let html = `
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Shop</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Download</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            Object.entries(orders).reverse().forEach(([orderId, order]) => {
+                html += `
+                    <tr>
+                        <td>${order.fileName}</td>
+                        <td>${order.shopName || ''}</td>
+                        <td class="status-${order.status.toLowerCase()}">${order.status}</td>
+                        <td>${formatDate(order.createdAt)}</td>
+                        <td>
+                            <a href="${order.fileURL}" target="_blank" class="btn btn-secondary" style="padding:0.3rem 1rem;font-size:0.95rem;">View</a>
+                        </td>
+                        <td>
+                            <button class="btn btn-secondary" style="background:#e74c3c;" onclick="window.deleteOrder('${orderId}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            html += `</tbody></table>`;
+            ordersContainer.innerHTML = html;
+        }
+
+        // Expose deleteOrder to window for inline onclick
+        window.deleteOrder = deleteOrder;
+
+        // Load orders function
+        async function loadOrders() {
+            const user = auth.currentUser;
+            if (!user) return;
+            const ordersRef = ref(db, "printJobs");
+            const snapshot = await get(ordersRef);
+            if (snapshot.exists()) {
+                const allOrders = snapshot.val();
+                // Filter orders by userId
+                const userOrders = {};
+                Object.entries(allOrders).forEach(([key, order]) => {
+                    if (order.userId === user.uid) {
+                        userOrders[key] = order;
+                    }
+                });
+                renderOrders(userOrders);
+            } else {
+                renderOrders({});
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+            loadOrders();
+        });
+    </script>
+</body>
+</html>

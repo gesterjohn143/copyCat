@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CopyCat - Print</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/user.css">
     <style>
         .shop-card {
             background: #fff;
@@ -38,46 +39,199 @@
         .btn:hover {
             background-color: #2980b9;
         }
+        .printing-options {
+         
+            margin: 0 auto;
+            padding: 2rem;
+            border-radius: 8px;
+        }
+        .upload-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .upload-area {
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .upload-area:hover {
+            background-color: #ecf6fd;
+        }
+        .document-preview {
+            max-width: 100%;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+        .option-group {
+            margin-bottom: 1.5rem;
+        }
+        .radio-group, .checkbox-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .radio-option, .checkbox-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .option-label {
+            margin-left: 0.5rem;
+            color: #2c3e50;
+        }
+        .option-price {
+            margin-left: auto;
+            color: #7f8c8d;
+        }
+        .copies-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .print-shops {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+         /* Additional styles for usersaved page */
+        .profile-details-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-top: 2rem;
+        }
+
+        .profile-details-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .profile-details-card .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .profile-details-card .detail-row p {
+            margin: 0;
+            font-size: 1rem;
+            color: #7f8c8d;
+        }
+
+        .profile-details-card .detail-row p strong {
+            color: #2c3e50;
+        }
+
+        .profile-details-card .edit-btn {
+            display: inline-block;
+            margin-top: 1.5rem;
+            background-color: #3498db;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        .profile-details-card .edit-btn:hover {
+            background-color: #2980b9;
+        }
     </style>
 </head>
 <body>
     <header>
         <a href="index.html" class="logo">CopyCat</a>
+        <div class="user-nav">
+            <a href="print.html"><i class="fas fa-print"></i> Print</a>
+            <a href="orders.html"><i class="fas fa-print"></i> My Orders</a>
+            <a href="payment.html"><i class="fas fa-credit-card"></i> Payment</a>
+            <div class="profile-btn" style="cursor:pointer;" onclick="window.location.href='usersaved.html'">
+                <img src="assets/userr.jpg" alt="User Profile">
+                <span>Profile</span>
+            </div>
+        </div>
     </header>
-    <div class="container">
+    <div class="container1">
         <h1>Print Your Documents</h1>
-        <form id="printForm">
-            <div>
-                <label>Upload PDF or Image:</label>
-                <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" required>
+        <form id="printForm" class="printing-options">
+            <div class="upload-section">
+                <h2>Upload Your Document</h2>
+                <div id="uploadArea" class="upload-area">
+                    <p id="uploadText">Drag & drop your file here or click to browse</p>
+                    <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" required style="display:none;">
+                    <img id="documentPreview" class="document-preview hidden" alt="Document preview">
+                </div>
             </div>
-            <div>
-                <label>Paper Size:</label>
-                <select id="paperSize">
-                    <option value="A4">A4</option>
-                    <option value="Letter">Letter</option>
-                    <option value="Legal">Legal</option>
-                </select>
+            <div class="option-group">
+                <h3>Paper Size</h3>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="paperSize" value="A4" checked>
+                        <span class="option-label">A4 (210 × 297 mm)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="paperSize" value="Letter">
+                        <span class="option-label">Letter (8.5 × 11 in)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="paperSize" value="Legal">
+                        <span class="option-label">Legal (8.5 × 14 in)</span>
+                    </label>
+                </div>
             </div>
-            <div>
-                <label>Print Type:</label>
-                <select id="printType">
-                    <option value="black-white">Black & White</option>
-                    <option value="colored">Colored</option>
-                </select>
+            <div class="option-group">
+                <h3>Print Type</h3>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="printType" value="black-white" checked>
+                        <span class="option-label">Black & White</span>
+                        <span class="option-price">₱5/page</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="printType" value="colored">
+                        <span class="option-label">Colored</span>
+                        <span class="option-price">₱10/page</span>
+                    </label>
+                </div>
             </div>
-            <div>
-                <label><input type="checkbox" id="doubleSided"> Double-sided</label>
-                <label><input type="checkbox" id="stapled"> Stapled</label>
-                <label><input type="checkbox" id="holePunched"> Hole-punched</label>
+            <div class="option-group">
+                <h3>Additional Options</h3>
+                <div class="checkbox-group">
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="doubleSided">
+                        <span class="option-label">Double-sided printing</span>
+                        <span class="option-price">+₱5/page</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="stapled">
+                        <span class="option-label">Stapled</span>
+                        <span class="option-price">+₱3</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="holePunched">
+                        <span class="option-label">Hole-punched</span>
+                        <span class="option-price">+₱3</span>
+                    </label>
+                </div>
             </div>
-            <div>
-                <label>Copies:</label>
-                <input type="number" id="copies" min="1" value="1">
+            <div class="option-group">
+                <h3>Copies</h3>
+                <input type="number" id="copies" min="1" value="1" class="copies-input" title="Number of copies" placeholder="Enter number of copies">
             </div>
-            <div>
+            <div class="option-group">
                 <h3>Select a Print Shop</h3>
-                <div id="shopsList"></div>
+                <!-- Google Maps Search and Map -->
+                <div style="margin-bottom:1rem;">
+                    <input id="mapSearchInput" type="text" placeholder="Search location..." style="width:60%;padding:0.5rem 1rem;border-radius:4px;border:1px solid #ccc;margin-bottom:0.5rem;">
+                    <button id="locateMeBtn" class="btn btn-secondary" type="button" style="margin-left:0.5rem;">📍 Use My Location</button>
+                    <div id="map" style="width:100%;height:350px;border-radius:8px;margin-top:0.5rem;"></div>
+                </div>
+                <div id="shopsList" class="print-shops"></div>
             </div>
             <button type="submit" class="btn">Send to Shop</button>
         </form>
@@ -85,6 +239,109 @@
     <footer>
         <p>&copy; 2025 CopyCat</p>
     </footer>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAHwI-laof9pFodmAMQ_QwUYJium-c7TiQ&libraries=places"></script>
+    <script>
+let map, userMarker, searchBox, shopMarkers = [];
+let defaultCenter = { lat: 10.7202, lng: 122.5621 };
+
+function initPrintMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: defaultCenter,
+        zoom: 14,
+        mapTypeControl: false
+    });
+
+    // Search box
+    const input = document.getElementById('mapSearchInput');
+    searchBox = new google.maps.places.SearchBox(input);
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+    // Bias search results to map viewport
+    map.addListener('bounds_changed', () => {
+        searchBox.setBounds(map.getBounds());
+    });
+
+    // On search
+    searchBox.addListener('places_changed', () => {
+        const places = searchBox.getPlaces();
+        if (!places.length) return;
+        const place = places[0];
+        if (!place.geometry) return;
+        map.panTo(place.geometry.location);
+        map.setZoom(15);
+        if (userMarker) userMarker.setMap(null);
+        userMarker = new google.maps.Marker({
+            map,
+            position: place.geometry.location,
+            icon: { url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png" }
+        });
+    });
+
+    // Locate user
+    document.getElementById('locateMeBtn').onclick = function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const userLoc = {
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude
+                    };
+                    map.panTo(userLoc);
+                    map.setZoom(15);
+                    if (userMarker) userMarker.setMap(null);
+                    userMarker = new google.maps.Marker({
+                        map,
+                        position: userLoc,
+                        icon: { url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png" }
+                    });
+                },
+                () => { alert("Could not get your location."); }
+            );
+        } else {
+            alert("Geolocation is not supported by your browser.");
+        }
+    };
+
+    // Wait for Firebase shops to be loaded
+    window.renderShopMarkersOnMap = function(shops) {
+        // Remove old markers
+        shopMarkers.forEach(m => m.setMap(null));
+        shopMarkers = [];
+        shops.forEach(shop => {
+            if (shop.lat && shop.lng) {
+                const marker = new google.maps.Marker({
+                    map,
+                    position: { lat: shop.lat, lng: shop.lng },
+                    title: shop.name,
+                    icon: { url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png" }
+                });
+                marker.addListener('click', () => {
+                    map.panTo(marker.getPosition());
+                    // Optionally, select the shop in your UI
+                    const card = document.getElementById('shop-card-' + shop.shopId);
+                    if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+                    card && card.classList.add('selected');
+                });
+                shopMarkers.push(marker);
+            }
+        });
+    };
+}
+
+// Wait for DOM and Google Maps to load
+window.addEventListener('DOMContentLoaded', () => {
+    if (window.google && google.maps) {
+        initPrintMap();
+    } else {
+        let interval = setInterval(() => {
+            if (window.google && google.maps) {
+                clearInterval(interval);
+                initPrintMap();
+            }
+        }, 200);
+    }
+});
+</script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
@@ -109,32 +366,32 @@
         let user = null;
 
         // Load shops from Firebase
-        async function loadShops() {
+        function loadShops() {
             const shopsList = document.getElementById('shopsList');
             shopsList.innerHTML = "<p>Loading shops...</p>";
-            const snapshot = await get(ref(db, 'shops'));
-            shopsList.innerHTML = "";
-            if (snapshot.exists()) {
-                const shops = snapshot.val();
-                Object.entries(shops).forEach(([shopId, shop]) => {
-                    const card = document.createElement('div');
-                    card.className = 'shop-card';
-                    card.innerHTML = `
-                        <h4>${shop.name}</h4>
-                        <p>${shop.address}</p>
-                        <p>Location: ${shop.lat}, ${shop.lng}</p>
-                        <button type="button" class="btn">Select</button>
-                    `;
-                    card.querySelector('button').onclick = () => {
-                        document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('selected'));
-                        card.classList.add('selected');
-                        selectedShop = { ...shop, shopId };
-                    };
-                    shopsList.appendChild(card);
-                });
-            } else {
-                shopsList.innerHTML = "<p>No shops available.</p>";
-            }
+            get(ref(db, 'shops')).then(snapshot => {
+                shopsList.innerHTML = "";
+                if (snapshot.exists()) {
+                    const shops = snapshot.val();
+                    Object.entries(shops).forEach(([shopId, shop]) => {
+                        const card = document.createElement('div');
+                        card.className = 'shop-card';
+                        card.innerHTML = `
+                            <h4>${shop.name}</h4>
+                            <p>${shop.address}</p>
+                            <button type="button" class="btn">Select</button>
+                        `;
+                        card.querySelector('button').onclick = () => {
+                            document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('selected'));
+                            card.classList.add('selected');
+                            selectedShop = { ...shop, shopId };
+                        };
+                        shopsList.appendChild(card);
+                    });
+                } else {
+                    shopsList.innerHTML = "<p>No shops available.</p>";
+                }
+            });
         }
 
         // Wait for user to be logged in
@@ -181,8 +438,8 @@
                     shopId: selectedShop.shopId,
                     shopName: selectedShop.name,
                     options: {
-                        paperSize: document.getElementById('paperSize').value,
-                        printType: document.getElementById('printType').value,
+                        paperSize: document.querySelector('input[name="paperSize"]:checked').value,
+                        printType: document.querySelector('input[name="printType"]:checked').value,
                         doubleSided: document.getElementById('doubleSided').checked,
                         stapled: document.getElementById('stapled').checked,
                         holePunched: document.getElementById('holePunched').checked,
@@ -198,6 +455,99 @@
                 console.error(error);
             }
         });
+
+        // Handle file upload and preview
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const uploadText = document.getElementById('uploadText');
+        const documentPreview = document.getElementById('documentPreview');
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                uploadText.classList.add('hidden');
+                documentPreview.classList.remove('hidden');
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    documentPreview.setAttribute('src', event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            }
+        });
     </script>
+    <script type="module">
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+const firebaseConfig = {
+    apiKey: "AIzaSyA7zC2xkGU7VZu7iLnSBhv4n8EZnHrzJFw",
+    authDomain: "copycat-d3561.firebaseapp.com",
+    projectId: "copycat-d3561",
+    storageBucket: "copycat-d3561.firebasestorage.app",
+    messagingSenderId: "201940334771",
+    appId: "1:201940334771:web:5d68712667c8a5526a58c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// Patch your loadShops to also render markers
+const origLoadShops = window.loadShops;
+window.loadShops = function() {
+    const shopsList = document.getElementById('shopsList');
+    shopsList.innerHTML = "<p>Loading shops...</p>";
+    get(ref(db, 'shops')).then(snapshot => {
+        shopsList.innerHTML = "";
+        let shopsArr = [];
+        if (snapshot.exists()) {
+            const shops = snapshot.val();
+            Object.entries(shops).forEach(([shopId, shop]) => {
+                shopsArr.push({ ...shop, shopId });
+                const card = document.createElement('div');
+                card.className = 'shop-card';
+                card.id = 'shop-card-' + shopId;
+                card.innerHTML = `
+                    <h4>${shop.name}</h4>
+                    <p>${shop.address}</p>
+                    <button type="button" class="btn">Select</button>
+                `;
+                card.querySelector('button').onclick = () => {
+                    document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    window.selectedShop = { ...shop, shopId };
+                };
+                shopsList.appendChild(card);
+            });
+        } else {
+            shopsList.innerHTML = "<p>No shops available.</p>";
+        }
+        // Render markers on map
+        if (window.renderShopMarkersOnMap) window.renderShopMarkersOnMap(shopsArr);
+    });
+};
+</script>
 </body>
 </html>

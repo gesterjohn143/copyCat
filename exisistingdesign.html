@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CopyCat - Document Printing Service</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Additional styles for the map */
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="print.html" class="logo">CopyCat</a>
+        <div class="user-nav">
+            <a href="print.html"><i class="fas fa-print"></i> Print</a>
+            <a href="orders.html"><i class="fas fa-print"></i> My Orders</a>
+            <div class="profile-btn" onclick="window.location.href='usersaved.html'">
+                <img src="assets/userr.jpg" alt="User Profile">
+                <span>Profile</span>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <h1>Print Your Documents Easily</h1>
+        <p>Upload your document and we'll find the nearest print shop for you</p>
+        
+        <div class="upload-section">
+            <h2>Upload Your Document</h2>
+            <div id="uploadArea" class="upload-area">
+                <p>Drag & drop your file here or click to browse</p>
+                
+                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" title="Upload Document" placeholder="Choose a file to upload" style="display:none;">
+                <img id="documentPreview" class="document-preview hidden" alt="Document preview">
+            </div>
+            <button id="uploadBtn" class="btn">Upload Document</button>
+        </div>
+        
+        <div id="printingOptions" class="printing-options hidden">
+            <h2>Printing Options</h2>
+            
+            <div class="option-group">
+                <h3>Paper Size</h3>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="paperSize" value="A4" checked>
+                        <span class="option-label">A4 (210 × 297 mm)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="paperSize" value="Letter">
+                        <span class="option-label">Letter (8.5 × 11 in)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="paperSize" value="Legal">
+                        <span class="option-label">Legal (8.5 × 14 in)</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <h3>Print Type</h3>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="printType" value="black-white" checked>
+                        <span class="option-label">Black & White</span>
+                        <span class="option-price">₱5/page</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="printType" value="colored">
+                        <span class="option-label">Colored</span>
+                        <span class="option-price">₱10/page</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <h3>Additional Options</h3>
+                <div class="checkbox-group">
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="doubleSided">
+                        <span class="option-label">Double-sided printing</span>
+                        <span class="option-price">+₱5/page</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="stapled">
+                        <span class="option-label">Stapled</span>
+                        <span class="option-price">+₱3</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="holePunched">
+                        <span class="option-label">Hole-punched</span>
+                        <span class="option-price">+₱3</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <h3>Payment Method</h3>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="paymentMethod" value="gcash" checked>
+                        <span class="option-label">GCash</span>
+                        
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="paymentMethod" value="Bank Transfer">
+                        <span class="option-label">Bank Transfer</span>
+                        
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="paymentMethod" value="cash">
+                        <span class="option-label">Cash on Pickup</span>
+                        
+                    </label>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>Copies</h3>
+                <label for="copiesInput" class="visually-hidden">Number of Copies</label>
+                <input
+                    type="number"
+                    id="copiesInput"
+                    name="copies"
+                    min="1"
+                    value="1"
+                    class="copies-input"
+                    title="Number of copies"
+                    placeholder="Enter number of copies"
+                >
+            </div>
+            
+            <button id="findShopsBtn" class="btn">Find Nearest Print Shops</button>
+        </div>
+        
+        <div id="locationSection" class="hidden">
+            <h2>Allow location access to find nearest shops</h2>
+            <p>We need your location to find the closest print shops to you.</p>
+            <button id="allowLocationBtn" class="btn">Allow Location Access</button>
+            
+            
+        </div>
+        
+        
+        <script type="module" src="https://ajax.googleapis.com/ajax/libs/@googlemaps/extended-component-library/0.6.11/index.min.js"></script>
+
+        <!-- Add the new map and place picker -->
+        <gmpx-api-loader key="AIzaSyAHwI-laof9pFodmAMQ_QwUYJium-c7TiQ" solution-channel="GMP_GE_mapsandplacesautocomplete_v2">
+        </gmpx-api-loader>
+        <gmp-map center="10.7202,122.5621" zoom="14" style="height:500px;width:100%;border-radius:8px;margin:20px 0;box-shadow:0 2px 10px rgba(0,0,0,0.1);" map-id="DEMO_MAP_ID">
+          <div slot="control-block-start-inline-start" class="place-picker-container">
+            <gmpx-place-picker placeholder="Enter an address"></gmpx-place-picker>
+          </div>
+          <gmp-advanced-marker></gmp-advanced-marker>
+        </gmp-map>
+
+        <div id="shopsSection" class="hidden">
+            <h2>Nearby Print Shops</h2>
+            <p>Select a shop to send your print job to:</p>
+            
+            <div id="printShops" class="print-shops">
+                <!-- Shop cards will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    
+        </div>
+    </div>
+
+    
+        </div>
+    </div>
+    
+   
+    <script>
+        // Sample print shop data with Philippine locations
+        const printShops = [
+            {
+                id: 1,
+                name: "Quick Print Center",
+                address: "123 Main St, Iloilo City",
+                phone: "094262210654",
+                hours: "Mon-Fri: 8am-6pm, Sat: 9am-3pm",
+                distance: "0.5 km away",
+                coordinates: { lat: 10.720
+                    , lng: 122.5621 }
+            },
+            {
+                id: 2,
+                name: "Office Print Solutions",
+                address: "456 Business Ave, Jaro",
+                phone: "09391199262",
+                hours: "Mon-Fri: 7am-7pm, Sat-Sun: 10am-2pm",
+                distance: "1.2 km away",
+                coordinates: { lat: 10.7325, lng: 122.5478 }
+            },
+            {
+                id: 3,
+                name: "Copy Express",
+                address: "789 Commerce Rd, Mandurriao",
+                phone: "09103622663",
+                hours: "Mon-Sat: 9am-5pm",
+                distance: "2.1 km away",
+                coordinates: { lat: 10.7117, lng: 122.5453 }
+            }
+        ];
+
+        // DOM elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const documentPreview = document.getElementById('documentPreview');
+        const printingOptions = document.getElementById('printingOptions');
+
+        let currentFile = null;
+
+        // Handle file selection and preview
+        function handleFileSelection(file) {
+            const validTypes = [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'image/jpeg',
+                'image/png'
+            ];
+
+            if (!validTypes.includes(file.type) && !file.name.match(/\.(pdf|doc|docx|jpg|jpeg|png)$/i)) {
+                alert('Please select a valid file type (PDF, DOC, DOCX, JPG, PNG)');
+                return;
+            }
+
+            currentFile = file;
+
+            // Show preview if it's an image
+            if (file.type.match('image.*')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    documentPreview.src = e.target.result;
+                    documentPreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                documentPreview.classList.add('hidden');
+                documentPreview.src = '';
+            }
+
+            uploadArea.innerHTML = `
+                <p>Selected: ${file.name}</p>
+                <button type="button" id="changeFileBtn" class="btn btn-secondary" style="margin-top:10px;">Change Document</button>
+            `;
+            uploadBtn.textContent = 'Continue to Printing Options';
+
+            // Add event listener for changing file
+            document.getElementById('changeFileBtn').onclick = () => {
+                resetUploadArea();
+                fileInput.value = '';
+                currentFile = null;
+                uploadBtn.textContent = 'Upload Document';
+                printingOptions.classList.add('hidden');
+            };
+        }
+
+        // Reset upload area to initial state
+        function resetUploadArea() {
+            uploadArea.innerHTML = `
+                <p>Drag & drop your file here or click to browse</p>
+                <label for="fileInput" class="visually-hidden">Upload Document</label>
+                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" title="Upload Document" placeholder="Choose a file to upload" style="display:none;">
+                <img id="documentPreview" class="document-preview hidden" alt="Document preview">
+            `;
+            // Re-bind file input and preview
+            const newFileInput = uploadArea.querySelector('#fileInput');
+            newFileInput.addEventListener('change', () => {
+                if (newFileInput.files.length) {
+                    handleFileSelection(newFileInput.files[0]);
+                }
+            });
+        }
+
+        // Drag & drop and click events
+        uploadArea.addEventListener('click', (e) => {
+            if (e.target.id !== 'changeFileBtn') fileInput.click();
+        });
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '#f0f8ff';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.backgroundColor = '';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '';
+            if (e.dataTransfer.files.length) {
+                handleFileSelection(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                handleFileSelection(fileInput.files[0]);
+            }
+        });
+
+        // Upload button logic
+        uploadBtn.addEventListener('click', () => {
+            if (currentFile) {
+                printingOptions.classList.remove('hidden');
+                uploadBtn.textContent = 'Change Document';
+            } else {
+                fileInput.click();
+            }
+        });
+
+        findShopsBtn.addEventListener('click', () => {
+            locationSection.classList.remove('hidden');
+        });
+
+        allowLocationBtn.addEventListener('click', () => {
+            if (navigator.geolocation) {
+                // Show loading state
+                allowLocationBtn.innerHTML = '<span class="spinner"></span> Detecting Location...';
+                allowLocationBtn.disabled = true;
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        showNearbyShops();
+                    },
+                    (error) => {
+                        allowLocationBtn.innerHTML = 'Allow Location Access';
+                        allowLocationBtn.disabled = false;
+                        alert('Could not get your location. Please try manually entering your address.');
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by your browser. Please enter your address manually.');
+            }
+        });
+
+        useManualAddressBtn.addEventListener('click', () => {
+            if (manualAddress.value.trim()) {
+                // In a real app, you would geocode this address to get coordinates
+                // For demo, we'll use a default location (Iloilo City)
+                userLocation = { lat: 10.7202, lng: 122.5621 };
+                showNearbyShops();
+            } else {
+                alert('Please enter an address');
+            }
+        });
+
+        // Modal event listeners
+        loginBtn.addEventListener('click', () => {
+            loginModal.classList.remove('hidden');
+        });
+
+        signupBtn.addEventListener('click', () => {
+            signupModal.classList.remove('hidden');
+        });
+
+        closeModals.forEach(btn => {
+            btn.addEventListener('click', () => {
+                loginModal.classList.add('hidden');
+                signupModal.classList.add('hidden');
+            });
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
+                loginModal.classList.add('hidden');
+            }
+            if (e.target === signupModal) {
+                signupModal.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Login functionality would be implemented here');
+            loginModal.classList.add('hidden');
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Signup functionality would be implemented here');
+            signupModal.classList.add('hidden');
+        });
+
+        // Functions
+        function handleFileSelection(file) {
+            const validTypes = ['application/pdf', 'application/msword', 
+                               'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                               'image/jpeg', 'image/png'];
+            
+            if (!validTypes.includes(file.type) && !file.name.match(/\.(pdf|doc|docx|jpg|jpeg|png)$/i)) {
+                alert('Please select a valid file type (PDF, DOC, DOCX, JPG, PNG)');
+                return;
+            }
+
+            currentFile = file;
+            
+            // Show preview if it's an image
+            if (file.type.match('image.*')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    documentPreview.src = e.target.result;
+                    documentPreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                documentPreview.classList.add('hidden');
+                documentPreview.src = '';
+            }
+            
+            uploadArea.innerHTML = `
+                <p>Selected: ${file.name}</p>
+                <button type="button" id="changeFileBtn" class="btn btn-secondary" style="margin-top:10px;">Change Document</button>
+            `;
+            uploadBtn.textContent = 'Continue to Printing Options';
+
+            // Add event listener for changing file
+            document.getElementById('changeFileBtn').onclick = () => {
+                resetUploadArea();
+                fileInput.value = '';
+                currentFile = null;
+                uploadBtn.textContent = 'Upload Document';
+                printingOptions.classList.add('hidden');
+            };
+        }
+
+        // Global function for shop selection
+        window.selectShop = function(shopId) {
+            const selectedShop = printShops.find(shop => shop.id === shopId);
+            alert(`Your document has been sent to ${selectedShop.name}!\n\nYou will receive a confirmation when your print job is ready for pickup.`);
+            
+            console.log('Sending to print shop:', {
+                shop: selectedShop,
+                file: currentFile.name,
+                userLocation: userLocation
+            });
+        };
+    </script>
+    <script>
+    async function init() {
+      await customElements.whenDefined('gmp-map');
+
+      const map = document.querySelector('gmp-map');
+      const marker = document.querySelector('gmp-advanced-marker');
+      const placePicker = document.querySelector('gmpx-place-picker');
+      // InfoWindow is only available after Google Maps JS API loads
+      let infowindow;
+      if (window.google && google.maps && google.maps.InfoWindow) {
+        infowindow = new google.maps.InfoWindow();
+      }
+
+      // Set map options if available
+      if (map.innerMap) {
+        map.innerMap.setOptions({
+          mapTypeControl: false
+        });
+      } else {
+        map.addEventListener('gmp-map-ready', () => {
+          map.innerMap.setOptions({
+            mapTypeControl: false
+          });
+        });
+      }
+
+      placePicker.addEventListener('gmpx-placechange', () => {
+        const place = placePicker.value;
+
+        if (!place.location) {
+          window.alert(
+            "No details available for input: '" + place.name + "'"
+          );
+          if (infowindow) infowindow.close();
+          marker.position = null;
+          return;
+        }
+
+        if (place.viewport && map.innerMap) {
+          map.innerMap.fitBounds(place.viewport);
+        } else {
+          map.center = place.location;
+          map.zoom = 17;
+        }
+
+        marker.position = place.location;
+        if (infowindow && map.innerMap) {
+          infowindow.setContent(
+            `<strong>${place.displayName}</strong><br>
+             <span>${place.formattedAddress}</span>
+          `);
+          infowindow.open(map.innerMap, marker);
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

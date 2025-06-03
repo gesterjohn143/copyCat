@@ -77,6 +77,12 @@
             grid-template-columns: 300px 1fr;
             gap: 2rem;
         }
+        .container1{
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+
+        }
 
         .sidebar {
             background: white;
