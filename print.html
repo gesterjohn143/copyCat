@@ -146,6 +146,14 @@
             <p>We need your location to find the closest print shops to you.</p>
             <button id="allowLocationBtn" class="btn">Allow Location Access</button>
             
+            <div id="manualAddressSection" class="hidden" style="margin-top: 20px;">
+                <p>Or enter your address manually:</p>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <input type="text" id="manualAddress" placeholder="Enter your address" style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <button id="useManualAddressBtn" class="btn">Use This Address</button>
+                </div>
+            </div>
+            
             
         </div>
         
@@ -218,6 +226,8 @@
         // DOM elements
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
+        const manualAddressSection = document.getElementById('manualAddressSection');
+        const manualAddress = document.getElementById('manualAddress');
         const uploadBtn = document.getElementById('uploadBtn');
         const documentPreview = document.getElementById('documentPreview');
         const printingOptions = document.getElementById('printingOptions');
@@ -326,30 +336,223 @@
             locationSection.classList.remove('hidden');
         });
 
-        allowLocationBtn.addEventListener('click', () => {
-            if (navigator.geolocation) {
-                // Show loading state
-                allowLocationBtn.innerHTML = '<span class="spinner"></span> Detecting Location...';
-                allowLocationBtn.disabled = true;
-                
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-                        showNearbyShops();
-                    },
-                    (error) => {
-                        allowLocationBtn.innerHTML = 'Allow Location Access';
-                        allowLocationBtn.disabled = false;
-                        alert('Could not get your location. Please try manually entering your address.');
-                    }
-                );
-            } else {
-                alert('Geolocation is not supported by your browser. Please enter your address manually.');
+        allowLocationBtn.addEventListener('click', async () => {
+            console.log('Location button clicked');
+            
+            // Show manual address section immediately as fallback
+            manualAddressSection.classList.remove('hidden');
+            
+            if (!navigator.geolocation) {
+                const errorMsg = 'Geolocation is not supported by your browser. Please enter your address manually.';
+                console.error(errorMsg);
+                showError(errorMsg);
+                return;
             }
-        });
+
+            const originalText = allowLocationBtn.innerHTML;
+            allowLocationBtn.innerHTML = '<span class="spinner"></span> Detecting Location...';
+            allowLocationBtn.disabled = true;
+            
+            // Clear previous errors
+            showError('');
+
+            try {
+                // Step 1: Check if geolocation is available
+                console.log('Checking geolocation availability...');
+                
+                // Step 2: Check permission state
+                let permissionStatus;
+                try {
+                    permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+                    console.log('Geolocation permission state:', permissionStatus.state);
+
+    // Upload button logic
+    uploadBtn.addEventListener('click', () => {
+        if (currentFile) {
+            printingOptions.classList.remove('hidden');
+            uploadBtn.textContent = 'Change Document';
+        } else {
+            fileInput.click();
+        }
+    });
+
+    findShopsBtn.addEventListener('click', () => {
+        locationSection.classList.remove('hidden');
+    });
+
+    allowLocationBtn.addEventListener('click', async () => {
+        console.log('Location button clicked');
+        
+        // Show manual address section immediately as fallback
+        manualAddressSection.classList.remove('hidden');
+        
+        if (!navigator.geolocation) {
+            const errorMsg = 'Geolocation is not supported by your browser. Please enter your address manually.';
+            console.error(errorMsg);
+            showError(errorMsg);
+            return;
+        }
+
+        const originalText = allowLocationBtn.innerHTML;
+        allowLocationBtn.innerHTML = '<span class="spinner"></span> Detecting Location...';
+        allowLocationBtn.disabled = true;
+        
+        // Clear previous errors
+        showError('');
+
+        try {
+            // Step 1: Check if geolocation is available
+            console.log('Checking geolocation availability...');
+            
+            // Step 2: Check permission state
+            let permissionStatus;
+            try {
+                permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+                console.log('Geolocation permission state:', permissionStatus.state);
+                
+                if (permissionStatus.state === 'denied') {
+                    throw { code: 1, message: 'Location permission was denied. Please enable it in your browser settings.' };
+                }
+            } catch (permError) {
+                console.warn('Permission query failed, continuing anyway:', permError);
+            }
+
+            // Step 3: Try to get position with multiple fallbacks
+            console.log('Attempting to get position...');
+            let position;
+            let locationSource = 'gps';
+            
+            try {
+                // Try high-accuracy geolocation first
+                position = await new Promise((resolve, reject) => {
+                    const options = {
+                        enableHighAccuracy: true,
+                        timeout: 10000,  // 10 seconds for high accuracy
+                        maximumAge: 0
+                    };
+
+                    console.log('Trying high-accuracy geolocation...');
+                    navigator.geolocation.getCurrentPosition(resolve, reject, options);
+                });
+                console.log('Got high-accuracy position:', position.coords);
+                
+            } catch (highAccuracyError) {
+                console.warn('High-accuracy geolocation failed, trying low accuracy...', highAccuracyError);
+                
+                try {
+                    // Try with lower accuracy if high accuracy fails
+                    position = await new Promise((resolve, reject) => {
+                        const options = {
+                            enableHighAccuracy: false,
+                            timeout: 10000,
+                            maximumAge: 0
+                        };
+                        
+                        console.log('Trying low-accuracy geolocation...');
+                        navigator.geolocation.getCurrentPosition(resolve, reject, options);
+                    });
+                    console.log('Got low-accuracy position:', position.coords);
+                    
+                } catch (lowAccuracyError) {
+                    console.warn('Standard geolocation failed, trying IP-based geolocation...', lowAccuracyError);
+                    locationSource = 'ip';
+                    
+                    try {
+                        // Fall back to IP-based geolocation
+                        console.log('Attempting IP-based geolocation...');
+                        const ipResponse = await fetch('https://ipapi.co/json/');
+                        if (!ipResponse.ok) throw new Error('IP geolocation service unavailable');
+                        
+                        const ipData = await ipResponse.json();
+                        console.log('Got IP-based location:', ipData);
+                        
+                        if (ipData.latitude && ipData.longitude) {
+                            position = {
+                                coords: {
+                                    latitude: parseFloat(ipData.latitude),
+                                    longitude: parseFloat(ipData.longitude),
+                                    accuracy: 10000, // IP geolocation is less accurate
+                                    altitude: null,
+                                    altitudeAccuracy: null,
+                                    heading: null,
+                                    speed: null
+                                },
+                                timestamp: Date.now()
+                            };
+                            console.log('Using IP-based location with reduced accuracy');
+                        } else {
+                            throw new Error('No location data in IP response');
+                        }
+                        
+                    } catch (ipError) {
+                        console.error('All location methods failed:', ipError);
+                        locationSource = 'default';
+                        // Use Iloilo City as final fallback
+                        position = {
+                            coords: {
+                                latitude: 10.7202,
+                                longitude: 122.5621,
+                                accuracy: 50000, // Very low accuracy
+                                altitude: null,
+                                altitudeAccuracy: null,
+                                heading: null,
+                                speed: null
+                            },
+                            timestamp: Date.now()
+                        };
+                        console.log('Using default location (Iloilo City)');
+                    }
+                }
+            }
+            
+            // Process the obtained position
+            console.log('Processing position:', position.coords);
+            userLocation = { 
+                lat: position.coords.latitude, 
+                lng: position.coords.longitude,
+                accuracy: position.coords.accuracy || 50000,
+                source: locationSource
+            };
+            
+            console.log('Location details:', {
+                coordinates: `${userLocation.lat}, ${userLocation.lng}`,
+                accuracy: `${Math.round(userLocation.accuracy)} meters`,
+                source: userLocation.source
+            });
+            
+            // Show appropriate message based on accuracy
+            if (userLocation.accuracy < 1000) {
+                showError(`📍 Found your location! (Accuracy: ~${Math.round(userLocation.accuracy)} meters)`, 'success');
+            } else if (userLocation.accuracy < 5000) {
+                showError('📍 Found your approximate location. For better results, enable GPS or move to an area with better signal.', 'success');
+            } else {
+                showError('⚠️ Using approximate location. For better results, enable GPS or enter your address manually.', 'warning');
+            }
+            
+            // Show nearby shops
+            setTimeout(() => showNearbyShops(), 500); // Small delay to ensure UI updates
+            
+        } catch (error) {
+            console.error('Location detection failed:', error);
+            let errorMessage = 'Could not determine your location. ';
+            
+            if (error.code === 1) {
+                errorMessage = 'Location permission was denied. Please enable location access in your browser settings.';
+            } else if (error.code === 2) {
+                errorMessage = 'Position unavailable. This might be due to poor GPS signal or network connectivity.';
+            } else if (error.code === 3) {
+                errorMessage = 'Location request timed out. Please ensure you have a stable internet connection.';
+            } else {
+                errorMessage += error.message || 'An unknown error occurred.';
+            }
+            
+            showError(`${errorMessage} Please enter your address manually.`);
+            
+        } finally {
+            allowLocationBtn.innerHTML = originalText;
+            allowLocationBtn.disabled = false;
+        }
+    });
 
         useManualAddressBtn.addEventListener('click', () => {
             if (manualAddress.value.trim()) {
@@ -399,6 +602,127 @@
             signupModal.classList.add('hidden');
         });
 
+        // Show nearby print shops based on user's location
+        function showNearbyShops() {
+            console.log('Showing nearby shops for location:', userLocation);
+            const shopsSection = document.getElementById('shopsSection');
+            const shopsContainer = document.getElementById('printShops');
+            
+            if (!userLocation) {
+                showError('Location not available. Please try again.');
+                return;
+            }
+
+            // Hide location section and show shops section
+            document.getElementById('locationSection').classList.add('hidden');
+            shopsSection.classList.remove('hidden');
+            
+            // Clear previous results
+            shopsContainer.innerHTML = '';
+            
+            // Calculate distances and sort shops by proximity
+            const shopsWithDistance = printShops.map(shop => {
+                const distance = calculateDistance(
+                    userLocation.lat, 
+                    userLocation.lng,
+                    shop.coordinates.lat,
+                    shop.coordinates.lng
+                );
+                return { ...shop, distance };
+            }).sort((a, b) => a.distance - b.distance);
+
+            // Display each shop
+            shopsWithDistance.forEach(shop => {
+                const shopElement = document.createElement('div');
+                shopElement.className = 'shop-card';
+                shopElement.innerHTML = `
+                    <h3>${shop.name}</h3>
+                    <p>${shop.address}</p>
+                    <p>📱 ${shop.phone}</p>
+                    <p>⏰ ${shop.hours}</p>
+                    <p>📍 ${shop.distance.toFixed(1)} km away</p>
+                    <button onclick="selectShop(${shop.id})" class="btn">Select This Shop</button>
+                `;
+                shopsContainer.appendChild(shopElement);
+            });
+        }
+        
+        // Calculate distance between two coordinates in kilometers (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+        
+        // Helper function to show messages (error, success, warning)
+        function showError(message, type = 'error') {
+            console.log('Showing message:', type, message);
+            
+            // Remove any existing messages
+            const existingMessages = document.querySelectorAll('.message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            if (!message) return; // If message is empty, just clear existing messages
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <span class="message-icon">${type === 'error' ? '⚠️' : '✅'}</span>
+                    <span class="message-text">${message}</span>
+                </div>
+                <button class="message-close">&times;</button>
+            `;
+            
+            // Insert the message after the location button
+            const locationSection = document.getElementById('locationSection');
+            locationSection.insertBefore(messageDiv, locationSection.firstChild);
+            
+            // Add close button functionality
+            const closeBtn = messageDiv.querySelector('.message-close');
+            closeBtn.addEventListener('click', () => {
+                messageDiv.remove();
+            });
+            
+            // Auto-remove the message after 10 seconds for errors, 5 for success
+            const timeout = type === 'error' ? 10000 : 5000;
+            const timer = setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.style.opacity = '0';
+                    setTimeout(() => {
+                        if (messageDiv.parentNode) {
+                            messageDiv.remove();
+                        }
+                    }, 300);
+                }
+            }, timeout);
+            
+            // Clear timeout if user hovers over the message
+            messageDiv.addEventListener('mouseenter', () => {
+                clearTimeout(timer);
+            });
+            
+            // Reset timer when mouse leaves
+            messageDiv.addEventListener('mouseleave', () => {
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.style.opacity = '0';
+                        setTimeout(() => {
+                            if (messageDiv.parentNode) {
+                                messageDiv.remove();
+                            }
+                        }, 300);
+                    }
+                }, 3000);
+            });
+        }
+        
         // Functions
         function handleFileSelection(file) {
             const validTypes = ['application/pdf', 'application/msword', 
